@@ -2,6 +2,7 @@
   :description "My first common lisp project with sbcl + asdf + quicklisp."
   :version "0.0.1"
   :author "crk"
+  :depends-on (:clingon)
   :components ((:file "packages")
                (:module "lisp"
                 :serial t
