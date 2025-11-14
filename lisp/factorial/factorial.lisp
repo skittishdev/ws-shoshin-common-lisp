@@ -1,6 +1,7 @@
 (in-package #:factorial)
 
 (defun fact (n)
+  "Given an integer (expressed as an integer, or a string), compute it's factorial."
   (cond
     ((integerp n) (fact-impl n))
     ((stringp n) (handler-case
@@ -13,6 +14,7 @@
     ))
 
 (defun fact-impl (num)
+  "Given an integer, compute it's factorial."
   (cond
     ((< num 0) 0)
     ((zerop num) 1)
