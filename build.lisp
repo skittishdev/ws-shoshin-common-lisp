@@ -1,1 +1,0 @@
-(asdf:make :factorial)

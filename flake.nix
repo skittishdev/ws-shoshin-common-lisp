@@ -30,9 +30,7 @@
         default = pkgs.mkShell {
           nativeBuildInputs = (with pkgs; [
           ]) ++ (with pkgs-unstable; [
-            (sbcl.withPackages (ps: with ps; [
-              sbclPackages.buildapp
-            ]))
+            sbcl
           ]);
         };
       }
