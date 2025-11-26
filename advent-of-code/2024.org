@@ -100,26 +100,29 @@ https://adventofcode.com/2024/day/2
 *** Part 1.
 
 #+BEGIN_SRC lisp
-(defun adjacent-pairs (lst)
+(defun adjacent-pairs (list)
   "Get the adjacent numbers of the list as pairs."
-  (loop :for (a b) :on lst :by #'cdr
-        :while b
+  (loop :for (a b) :on list
+        :while (stringp b)
         :collect (mapcar #'read-from-string (list a b))))
 
-(defun is-safe-report (lst)
+(defun is-safe-report (list)
   "Determines if a report is 'SAFE' => elements in the list are all increasing, or all decreasing, AND, adjacent elements differ by at-least 1 and at-most 3."
-  (cond ((< (length lst) 2) t)
-        (t (let* ((adp (adjacent-pairs lst)))
-             (when
-                 (and (or (every #'(lambda (pair) (destructuring-bind (x y) pair
-                                                    (< x y))) adp)
-                          (every #'(lambda (pair) (destructuring-bind (x y) pair
-                                                    (> x y))) adp))
-                      (every #'(lambda (pair) (destructuring-bind (x y) pair
-                                                (and (>= (abs (- x y)) 1)
-                                                     (<= (abs (- x y)) 3)))) adp))
-               (return-from is-safe-report t))
-             nil))))
+  (if (< (length list) 2)
+      t
+      (let* ((adp (adjacent-pairs list)))
+        (if
+         (and (or (every #'(lambda (pair) (destructuring-bind (x y) pair
+                                            (< x y)))
+                         adp)
+                  (every #'(lambda (pair) (destructuring-bind (x y) pair
+                                            (> x y)))
+                         adp))
+              (every #'(lambda (pair) (destructuring-bind (x y) pair
+                                        (<= 1 (abs (- x y)) 3)))
+                     adp))
+         t
+         nil))))
 
 (defun count-safe-reports (file-name)
   "Determines how many reports are 'SAFE'."
@@ -128,8 +131,8 @@ https://adventofcode.com/2024/day/2
       (when (streamp stream)
         (loop for line = (read-line stream nil)
               while (stringp line)
-              do (let ((lst (cl-ppcre:split "\\s+" line)))
-                   (when (is-safe-report lst)
+              do (let ((list (cl-ppcre:split "\\s+" line)))
+                   (when (is-safe-report list)
                      (incf num-safe-reports))))))
     num-safe-reports))
 #+END_SRC
@@ -154,11 +157,12 @@ https://adventofcode.com/2024/day/2
 *** Part 2.
 
 #+BEGIN_SRC lisp
-(defun remove-nth (lst n)
-  "Return the list without the nth index. Python equivalent -> lst[:n] + lst[n+1:]. This is a non-destructive operation."
-  (cond ((= n 0) (cdr lst))
-        (t (nconc (subseq lst 0 n)
-                  (subseq lst (+ n 1))))))
+(defun remove-nth (list n)
+  "Return the list without the nth index. Python equivalent -> list[:n] + list[n+1:]. This is a non-destructive operation."
+  (if (zerop n)
+      (cdr list)
+      (nconc (subseq list 0 n)
+             (subseq list (+ n 1)))))
 
 (defun count-safe-reports-with-pd (file-name)
   "Determines how many reports are 'SAFE' assuming problem dampner is present."
@@ -167,11 +171,11 @@ https://adventofcode.com/2024/day/2
       (when (streamp stream)
         (loop for line = (read-line stream nil)
               while (stringp line)
-              do (let ((lst (cl-ppcre:split "\\s+" line)))
-                   (when (or (is-safe-report lst)
-                             (loop for i below (length lst)
-                                     thereis (is-safe-report (remove-nth lst i))))
-                     (incf num-safe-reports))))))
+              do (let ((list (cl-ppcre:split "\\s+" line)))
+                   (if (or (is-safe-report list)
+                           (loop for i below (length list)
+                                   thereis (is-safe-report (remove-nth list i))))
+                       (incf num-safe-reports))))))
     num-safe-reports))
 #+END_SRC
 
