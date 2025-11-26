@@ -9,6 +9,8 @@ https://adventofcode.com/2024
 #+END_SRC
 
 ** Day 1.
+https://adventofcode.com/2024/day/1
+
 *** Part 1.
 
 #+BEGIN_SRC lisp
