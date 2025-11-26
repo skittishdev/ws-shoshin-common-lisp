@@ -1,0 +1,93 @@
+* Advent of Code - 2024.
+https://adventofcode.com/2024
+
+** Common.
+
+#+BEGIN_SRC lisp
+(ql:quickload "cl-ppcre")
+(ql:quickload "alexandria")
+#+END_SRC
+
+** Day 1.
+*** Part 1.
+
+#+BEGIN_SRC lisp
+(defun total-dist (file-name)
+  "Finds the total distance between pairs in two lists after sorting them individually."
+  (let (left-list right-list)
+    (with-open-file (stream file-name)
+      (when stream
+        (loop for line = (read-line stream nil)
+              while line
+              do
+                 (let* ((words (cl-ppcre:split "\\s+" line))
+                        (left-location (read-from-string (elt words 0)))
+                        (right-location (read-from-string (elt words 1))))
+                   (push left-location left-list)
+                   (push right-location right-list)))))
+    (setf left-list (sort left-list #'<))
+    (setf right-list (sort right-list #'<))
+    (let ((location-dist (mapcar #'abs (mapcar #'- left-list right-list))))
+      (reduce #'+ location-dist))))
+#+END_SRC
+
+#+RESULTS:
+: TOTAL-DIST
+
+#+BEGIN_SRC lisp
+(total-dist "inputs/day1/part1_sample.txt")
+#+END_SRC
+
+#+RESULTS:
+: 11
+
+#+BEGIN_SRC lisp
+(total-dist "inputs/day1/part1_actual.txt")
+#+END_SRC
+
+#+RESULTS:
+: 3246517
+
+*** Part 2.
+
+#+BEGIN_SRC lisp
+(defun count-occurrences (list)
+  "Count the number of times each item occurs in a list. Returns a hash-table containing the counts."
+  (let ((counts (make-hash-table :test 'equal)))
+    (loop for item in list
+          do (incf (gethash item counts 0)))
+    counts))
+
+(defun similarity-score (file-name)
+  "Find the similarity score between two lists."
+  (let (left-list right-list counts (score 0))
+    (with-open-file (stream file-name)
+      (when stream (loop for line = (read-line stream nil)
+                         while line
+                         do (let* ((words (cl-ppcre:split "\\s+" line))
+                                   (left-location (read-from-string (elt words 0)))
+                                   (right-location (read-from-string (elt words 1))))
+                              (push left-location left-list)
+                              (push right-location right-list)))))
+    (setf counts (count-occurrences right-list))
+    (loop for item in left-list
+          do (setf score (+ score (* item (gethash item counts 0)))))
+    score))
+#+END_SRC
+
+#+RESULTS:
+: SIMILARITY-SCORE
+
+#+BEGIN_SRC lisp
+(similarity-score "inputs/day1/part2_sample.txt")
+#+END_SRC
+
+#+RESULTS:
+: 31
+
+#+BEGIN_SRC lisp
+(similarity-score "inputs/day1/part2_actual.txt")
+#+END_SRC
+
+#+RESULTS:
+: 29379307
