@@ -132,10 +132,10 @@ https://adventofcode.com/2024/day/2
                    (when (is-safe-report lst)
                      (incf num-safe-reports))))))
     num-safe-reports))
-              #+END_SRC
+#+END_SRC
 
-              #+RESULTS:
-              : COUNT-SAFE-REPORTS
+#+RESULTS:
+: COUNT-SAFE-REPORTS
 
 #+BEGIN_SRC lisp
 (count-safe-reports "inputs/day2/part1_sample.txt")
@@ -173,7 +173,7 @@ https://adventofcode.com/2024/day/2
                                      thereis (is-safe-report (remove-nth lst i))))
                      (incf num-safe-reports))))))
     num-safe-reports))
-  #+END_SRC
+#+END_SRC
 
 #+RESULTS:
 : COUNT-SAFE-REPORTS-WITH-PD
