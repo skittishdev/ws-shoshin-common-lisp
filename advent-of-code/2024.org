@@ -93,3 +93,101 @@ https://adventofcode.com/2024/day/1
 
 #+RESULTS:
 : 29379307
+
+** Day 2.
+https://adventofcode.com/2024/day/2
+
+*** Part 1.
+
+#+BEGIN_SRC lisp
+(defun adjacent-pairs (lst)
+  "Get the adjacent numbers of the list as pairs."
+  (loop :for (a b) :on lst :by #'cdr
+        :while b
+        :collect (mapcar #'read-from-string (list a b))))
+
+(defun is-safe-report (lst)
+  "Determines if a report is 'SAFE' => elements in the list are all increasing, or all decreasing, AND, adjacent elements differ by at-least 1 and at-most 3."
+  (cond ((< (length lst) 2) t)
+        (t (let* ((adp (adjacent-pairs lst)))
+             (when
+                 (and (or (every #'(lambda (pair) (destructuring-bind (x y) pair
+                                                    (< x y))) adp)
+                          (every #'(lambda (pair) (destructuring-bind (x y) pair
+                                                    (> x y))) adp))
+                      (every #'(lambda (pair) (destructuring-bind (x y) pair
+                                                (and (>= (abs (- x y)) 1)
+                                                     (<= (abs (- x y)) 3)))) adp))
+               (return-from is-safe-report t))
+             nil))))
+
+(defun count-safe-reports (file-name)
+  "Determines how many reports are 'SAFE'."
+  (let ((num-safe-reports 0))
+    (with-open-file (stream file-name)
+      (when (streamp stream)
+        (loop for line = (read-line stream nil)
+              while (stringp line)
+              do (let ((lst (cl-ppcre:split "\\s+" line)))
+                   (when (is-safe-report lst)
+                     (incf num-safe-reports))))))
+    num-safe-reports))
+              #+END_SRC
+
+              #+RESULTS:
+              : COUNT-SAFE-REPORTS
+
+#+BEGIN_SRC lisp
+(count-safe-reports "inputs/day2/part1_sample.txt")
+#+END_SRC
+
+#+RESULTS:
+: 2
+
+#+BEGIN_SRC lisp
+(count-safe-reports "inputs/day2/part1_actual.txt")
+#+END_SRC
+
+#+RESULTS:
+: 279
+
+*** Part 2.
+
+#+BEGIN_SRC lisp
+(defun remove-nth (lst n)
+  "Return the list without the nth index. Python equivalent -> lst[:n] + lst[n+1:]. This is a non-destructive operation."
+  (cond ((= n 0) (cdr lst))
+        (t (nconc (subseq lst 0 n)
+                  (subseq lst (+ n 1))))))
+
+(defun count-safe-reports-with-pd (file-name)
+  "Determines how many reports are 'SAFE' assuming problem dampner is present."
+  (let ((num-safe-reports 0))
+    (with-open-file (stream file-name)
+      (when (streamp stream)
+        (loop for line = (read-line stream nil)
+              while (stringp line)
+              do (let ((lst (cl-ppcre:split "\\s+" line)))
+                   (when (or (is-safe-report lst)
+                             (loop for i below (length lst)
+                                     thereis (is-safe-report (remove-nth lst i))))
+                     (incf num-safe-reports))))))
+    num-safe-reports))
+  #+END_SRC
+
+#+RESULTS:
+: COUNT-SAFE-REPORTS-WITH-PD
+
+#+BEGIN_SRC lisp
+(count-safe-reports-with-pd "inputs/day2/part2_sample.txt")
+#+END_SRC
+
+#+RESULTS:
+: 4
+
+#+BEGIN_SRC lisp
+(count-safe-reports-with-pd "inputs/day2/part2_actual.txt")
+#+END_SRC
+
+#+RESULTS:
+: 343
